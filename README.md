@@ -19,3 +19,8 @@ Loop the whole dictionary comparing each word to the input word, words that have
 Breadth-First Search:
 
 Using breadth-frist will minimise the amount of time the ‘Find Othographical Neighbors’ code will need to be run as the first solution to be found will also be the shortest (at least joined equally shortest). 
+
+
+Weaknesses: 
+
+My implementation allows each node to have only one parent. This shouldn't prevent the system from finding a shortest solution, but it does limited it to only one. If the solution needed to expanded to output all solutions of the shortest length, a proper tree would have to be formed. 
