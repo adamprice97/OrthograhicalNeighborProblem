@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,48 +15,73 @@ namespace OrthograhicalNeighborProblem
         {
             //Handle user inputs
             string[] strDictionary = GetDictionary();
-            string strStartWord = GetStartWord();
-            string strEndWord = GetEndWord();
-            string strResultDir = GetResultDir();
 
-            //Clean dictionary 
-            List<string> cleanDictonary = CleanDictionary(strDictionary);
+            while (true)
+            {
+                string strStartWord = GetStartWord();
+                string strEndWord = GetEndWord();
+                string strResultDir = GetResultDir();
 
+                //Clean dictionary 
+                List<string> cleanDictonary = CleanDictionary(strDictionary);
 
-            List<string> test = new List<string>();
-            test = BreadthFirstSearch(strStartWord, strEndWord, cleanDictonary);
+                List<string> test = new List<string>();
+                test = BreadthFirstSearch(strStartWord, strEndWord, cleanDictonary);
+
+                foreach (string s in test)
+                {
+                    Console.WriteLine(s);
+                }
+            }
         }
 
-
+        /// <summary>
+        /// This method takes a start and end word and a dictionary.
+        /// It returns a list of Ortographical Neighbors connecting the words (if possible).
+        /// </summary>
         private static List<string> BreadthFirstSearch(string root, string end, List<string> dictonary)
         {
             List<string> TabooList = new List<string>();
             Queue<string> searchQueue = new Queue<string>();
             searchQueue.Enqueue(root);
+            Dictionary<string, string> parent = new Dictionary<string, string>();
 
             while (searchQueue.Count > 0)
             {
                 string node = searchQueue.Dequeue();
-                if (node == end)
-                {
-                    Console.WriteLine("Found");
-                    break;
+                if (node == end) {
+                    return Backtrace(parent, root, end);           
                 }
                 List<string> children = GetOrthoNeighbors(node, dictonary, ref TabooList);
                 foreach (string s in children)
                 {
                     searchQueue.Enqueue(s);
+                    parent.Add(s, node);
                 }
             }
-
-            Console.WriteLine("fail");
 
             return new List<string>();
         }
 
+        /// <summary>
+        /// This method takes a start and end word and a dictionary.
+        /// It returns a list of Ortographical Neighbors connecting the words (if possible).
+        /// </summary>
+        private static List<string> Backtrace(Dictionary<string, string> parent, string root, string end)
+        {
+            List<string> path = new List<string>();
+            path.Add(end);
+            while (path[path.Count() -1] != root)
+            {
+                path.Add(parent[path[path.Count() - 1]]);
+            }
+            path.Reverse();
+            return path;
+        }
+
 
         /// <summary>
-        /// This class takes a root word, a dictionary and a taboo list.
+        /// This method takes a root word, a dictionary and a taboo list.
         /// It returns Orthographical neighbors of the root word that aren't found on the taboo list
         /// Taboo list is passed by refence so it can be updated aswell
         /// </summary>
@@ -69,7 +96,7 @@ namespace OrthograhicalNeighborProblem
                     if (!TabooList.Contains(s))
                     {
                         neighbors.Add(s);
-                        TabooList.Add(s);
+                        TabooList.Add(s);                  
                     }
                 }
             }
@@ -77,7 +104,7 @@ namespace OrthograhicalNeighborProblem
         }
 
         /// <summary>
-        /// This class takes two words and returns a boolean of true if they are Orthographical Neighbors
+        /// This method takes two words and returns a boolean of true if they are Orthographical Neighbors
         /// </summary>
         private static bool AreOrthographicalNeighbors(string strWord1, string strWord2)
         {
@@ -91,14 +118,15 @@ namespace OrthograhicalNeighborProblem
 
             if (intMatchingChars == (strWord1.Length - 1)) {
                 return true;
-            } else { 
+            }
+            else {
                 return false;
             }
         }
 
 
         /// <summary>
-        /// This class get a valid end word from the user and returns it.
+        /// This method get a valid end word from the user and returns it.
         /// </summary>
         private static List<string> CleanDictionary(string[] dictionary)
         {
@@ -115,7 +143,7 @@ namespace OrthograhicalNeighborProblem
 
 
         /// <summary>
-        /// This class get a valid end word from the user and returns it.
+        /// This method get a valid end word from the user and returns it.
         /// </summary>
         static string GetEndWord()
         {
@@ -135,10 +163,9 @@ namespace OrthograhicalNeighborProblem
             return strInput.ToLower();
         }
         /// <summary>
-        /// This class get a valid start word from the user and returns it
+        /// This method get a valid start word from the user and returns it
         /// </summary>
-        static string GetStartWord()
-        {
+        static string GetStartWord() {
             bool blnCorrectWord = false;
             string strInput = "";
             while (blnCorrectWord == false)
@@ -156,19 +183,21 @@ namespace OrthograhicalNeighborProblem
         }
 
         /// <summary>
-        /// This class get a valid directory of a txt file from the user and returns the contents
+        /// This method get a valid directory of a txt file from the user and returns the contents
         /// of the file as an array of strings.
         /// </summary>
         static string[] GetDictionary()
         {
             bool blnFoundFile = false;
             string strPath = "";
-            while (blnFoundFile == false) {
+            while (blnFoundFile == false)
+            {
                 Console.WriteLine("Please input file path of dictionary file.");
                 strPath = @"" + Console.ReadLine();
                 if (File.Exists(strPath)) {
                     blnFoundFile = true;
-                } else {
+                }
+                else {
                     Console.WriteLine("Error: file could not be found.");
                 }
             }
@@ -177,10 +206,9 @@ namespace OrthograhicalNeighborProblem
         }
 
         /// <summary>
-        /// This class gets the result path from the user and returns it.
+        /// This method gets the result path from the user and returns it.
         /// </summary>
-        static string GetResultDir()
-        {
+        static string GetResultDir() {
             Console.WriteLine("Please input result path.");
             return Console.ReadLine();
         }
