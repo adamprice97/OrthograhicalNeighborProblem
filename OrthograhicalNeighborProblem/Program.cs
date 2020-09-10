@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Data;
@@ -15,22 +16,25 @@ namespace OrthograhicalNeighborProblem
         {
             //Handle user inputs
             string[] strDictionary = GetDictionary();
+            //Clean dictionary 
+            List<string> cleanDictonary = CleanDictionary(strDictionary);
 
             while (true)
             {
                 string strStartWord = GetStartWord();
-                string strEndWord = GetEndWord();
+                string strEndWord = GetEndWord(cleanDictonary);
                 string strResultDir = GetResultDir();
 
-                //Clean dictionary 
-                List<string> cleanDictonary = CleanDictionary(strDictionary);
+                Stack<string> result = BreadthFirstSearch(strStartWord, strEndWord, cleanDictonary);
 
-                List<string> test = new List<string>();
-                test = BreadthFirstSearch(strStartWord, strEndWord, cleanDictonary);
-
-                foreach (string s in test)
-                {
-                    Console.WriteLine(s);
+                if (result.Count == 0) {
+                    Console.WriteLine("No result found");
+                } else {
+                    foreach (string str in result)
+                    {
+                        Console.WriteLine(str);
+                    }
+                    WriteResult(result, strResultDir);
                 }
             }
         }
@@ -39,7 +43,7 @@ namespace OrthograhicalNeighborProblem
         /// This method takes a start and end word and a dictionary.
         /// It returns a list of Ortographical Neighbors connecting the words (if possible).
         /// </summary>
-        private static List<string> BreadthFirstSearch(string root, string end, List<string> dictonary)
+        private static Stack<string> BreadthFirstSearch(string root, string end, List<string> dictonary)
         {
             List<string> TabooList = new List<string>();
             Queue<string> searchQueue = new Queue<string>();
@@ -60,22 +64,21 @@ namespace OrthograhicalNeighborProblem
                 }
             }
 
-            return new List<string>();
+            return new Stack<string>();
         }
 
         /// <summary>
         /// This method takes a start and end word and a dictionary.
         /// It returns a list of Ortographical Neighbors connecting the words (if possible).
         /// </summary>
-        private static List<string> Backtrace(Dictionary<string, string> parent, string root, string end)
+        private static Stack<string> Backtrace(Dictionary<string, string> parent, string root, string end)
         {
-            List<string> path = new List<string>();
-            path.Add(end);
-            while (path[path.Count() -1] != root)
+            Stack<string> path = new Stack<string>();
+            path.Push(end);
+            while (path.Peek() != root)
             {
-                path.Add(parent[path[path.Count() - 1]]);
+                path.Push(parent[path.Peek()]);
             }
-            path.Reverse();
             return path;
         }
 
@@ -85,18 +88,15 @@ namespace OrthograhicalNeighborProblem
         /// It returns Orthographical neighbors of the root word that aren't found on the taboo list
         /// Taboo list is passed by refence so it can be updated aswell
         /// </summary>
-        private static List<string> GetOrthoNeighbors(string strRoot, List<string> dictionary, ref List<string> TabooList)
+        private static List<string> GetOrthoNeighbors(string strRoot, List<string> dictionary, ref List<string> tabooList)
         {
             List<string> neighbors = new List<string>();
-
             foreach (string s in dictionary)
             {
-                if (AreOrthographicalNeighbors(s, strRoot))
-                {
-                    if (!TabooList.Contains(s))
-                    {
+                if (AreOrthographicalNeighbors(s, strRoot)) {
+                    if (!tabooList.Contains(s)) {
                         neighbors.Add(s);
-                        TabooList.Add(s);                  
+                        tabooList.Add(s);                  
                     }
                 }
             }
@@ -125,6 +125,19 @@ namespace OrthograhicalNeighborProblem
         }
 
 
+        private static void WriteResult(Stack<string> result, string path)
+        {
+            try
+            {
+                File.WriteAllLines(@path, result);
+                Console.WriteLine("Result saved.");
+            } catch
+            {
+                Console.WriteLine("Error: Invalid path " + @path);
+            }
+            
+        }
+
         /// <summary>
         /// This method get a valid end word from the user and returns it.
         /// </summary>
@@ -132,7 +145,7 @@ namespace OrthograhicalNeighborProblem
         {
             List<string> cleanDictonary = new List<string>();
             foreach (string word in dictionary)
-            {
+            {   //Only letters, of 4 length. Slight redundancy here. 
                 if (Regex.IsMatch(word, @"\b\w[a-zA-Z]{3}\b") && word.Length == 4) {
                     cleanDictonary.Add(word.ToLower());
                 }
@@ -141,11 +154,10 @@ namespace OrthograhicalNeighborProblem
             return cleanDictonary;
         }
 
-
         /// <summary>
         /// This method get a valid end word from the user and returns it.
         /// </summary>
-        static string GetEndWord()
+        static string GetEndWord(List<string> dictonary)
         {
             bool blnCorrectWord = false;
             string strInput = "";
@@ -154,7 +166,11 @@ namespace OrthograhicalNeighborProblem
                 Console.WriteLine("Please a end word.");
                 strInput = @"" + Console.ReadLine();
                 if (Regex.IsMatch(strInput, @"\b\w[a-zA-Z]{3}\b") && strInput.Length == 4) { //check input format
-                    blnCorrectWord = true;
+                    if (dictonary.Contains(strInput)) {
+                        blnCorrectWord = true;
+                    } else {
+                        Console.WriteLine("Error: Input is not in the dictionary.");
+                    }    
                 }
                 else {
                     Console.WriteLine("Error: Input in wrong format (Check length (4) and no special chars)");
