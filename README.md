@@ -4,7 +4,7 @@ adamprice4@outlook.com
 
 The following is a document detailing how I solved the ‘Orthographical Neighbor’ problem for the BluePrism technical test. I beginning with my first thoughts upon seeing the problem and progress to a detailed overview of the end system. I end by highlighting the weaknesses of my implementation. 
 
-## Initial thoughts
+## Initial Thoughts
 
  - The dictionary will need to be cleaned of words longer and shorter than 4 letters. Words containing punctuation will also need to be removed. 
 
@@ -16,7 +16,7 @@ The following is a document detailing how I solved the ‘Orthographical Neighbo
 
 I will now highlight the steps taken by the solution to get a result. 
 
-### The dictionary
+### The Dictionary
 The dictionary is found using the path provided by the user. It then undergoes a cleaning process in which words that are not 4 characters in length are removed. Words containing punctuation are also discarded and all words are converted to lower. 
 
 The cleaning dramatically reduced the size of the dictionary (saving time when searching) and removes potential errors that would occur with words containing punctuation.
