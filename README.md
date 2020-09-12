@@ -17,12 +17,12 @@ The following is a document detailing how I solved the ‘Orthographical Neighbo
 I will now highlight the steps taken by the solution to get a result. 
 
 ### The Dictionary
-The dictionary is found using the path provided by the user. It then undergoes a cleaning process in which words that are not 4 characters in length are removed. Words containing punctuation are also discarded and all words are converted to lower. 
+The dictionary file is found using the path provided by the user. It then undergoes a cleaning process in which words that are not 4 characters in length are removed. Words containing punctuation are also discarded and all words are converted to lowercase. 
 
 The cleaning dramatically reduced the size of the dictionary (saving time when searching) and removes potential errors that would occur with words containing punctuation.
 
 ### Start And End Word Input
-Validation is done on the inputs to prevent errors latter, such as, not allowing punctuation and forcing all input to lower. 
+Validation is done on the inputs to prevent errors, such as, not allowing punctuation and forcing all inputs to lowercase. Also, the end word can only be accepted if it is in the dictionary.
 
 ### Finding Orthographical Neighbours
 
@@ -30,9 +30,9 @@ To find the orthographical neighbours of a word we loop through the whole dictio
 
 ### Breadth-First Search
 
-Using breadth-first minimises the amount of time the ‘Find Orthographical Neighbors’ code will need to be run as the first solution to be found will also be the shortest (at least joined equally shortest).
+Using a breadth-first search minimises the amount of time the ‘Find Orthographical Neighbors’ code will need to be run as the first solution to be found will also be the shortest (at least joined equally shortest).
 
-The search creates a tree as it searches by creating a dictionary file that links child nodes to its parent. When the end word is discovered the dictionary file used in a backtrace to produce the path taken from the start to the end word.
+The search creates a tree as it searches by creating a dictionary structure that links child nodes to its parent. When the end word is discovered the dictionary structure is used in a backtrace to produce the path taken from the start to the end word.
 
 ## Testing 
 Minimal unit testing has been implemented. Far more could be done with this, but I have shown how unit testing could be applied to the solution.  
